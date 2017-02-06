@@ -73,10 +73,16 @@ $render_array = array(
 }
 
 function find_cadets_events_arguments($foo){
+global $user;
 
-$mm = "<pre>" . print_r($foo, TRUE) . "</pre>";
-
-watchdog('CAP', $mm);
+$airport_tid = $_POST['selected'];
+$dateStr     = $_POST['date']['date'];
+$tmDateAry = strptime($dateStr, "%a, %d-%b-%Y");
+$dateAry = array(
+           'day'   => $tmDateAry['tm_mday'],
+           'month' => $tmDateAry['tm_mon'] + 1,
+           'year'  => $tmDateAry['tm_year'] + 1900
+           );
 
 $test1 = views_embed_view('find_cadets', 'block');
 $mm = "<pre>" . print_r($test1, TRUE) . "</pre>";
@@ -98,7 +104,7 @@ $render_array = array(
 
 
    'h2' => array(
-      '#markup' => $locale,
+      '#markup' => $mm,
       '#prefix' => "<span class='subhead'>",
       '#suffix' => '</span><br /><br />',
    ),
