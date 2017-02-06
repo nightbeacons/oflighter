@@ -1,2 +1,2 @@
 # oflighter
-Module to locate cadets for O-Flights
+Module to locate CAP cadets for O-Flights
