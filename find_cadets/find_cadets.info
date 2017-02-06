@@ -1,0 +1,5 @@
+name = Find Cadets
+description = Code to locate cadets for O-Flights
+package = CAP
+core = 7.x
+

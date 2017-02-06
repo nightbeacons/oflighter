@@ -1,0 +1,174 @@
+<?php
+
+
+/**
+ * Implements hook_menu().
+ */
+
+function find_cadets_menu(){
+
+  $items['pilots/your-cadets/%'] = array(
+//    'title' => t('Boosters & Events'),
+    'page arguments' => array(1),
+    'access arguments' => array('access arguments page'),
+    'page callback' => 'find_cadets_events_arguments',
+    'access callback' => TRUE,
+//    'type' => MENU_CALLBACK,
+
+  );
+
+
+  $items['pilots/lookforcadets'] = array(
+  'title'  => t('Find Cadets to Fly'),
+    'access arguments' => array('access arguments page'),
+  'page callback' => 'find_cadets_now',
+   'access_callback' => TRUE,
+);
+
+
+  $items['pilots/form1'] = array(
+    'title' => 'Look For Cadets To Fly',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('form_find_cadets'),
+    'access callback' => TRUE,
+    'description' => 'look for cadets',
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'find_cadets_forms.inc',
+  );
+
+
+
+$current_url = $_SERVER["SCRIPT_FILENAME"] . " xx<br> yy" . $_SERVER["REQUEST_URI"] . " ll<br>kk";
+$mm = "<pre>" .  print_r($current_url , TRUE) . "</pre>"; 
+watchdog('CAP', $mm);
+  return $items;
+}
+
+function find_cadets_now(){
+
+$render_array = array(
+    '#show_messages' => TRUE,
+//    '#type'  => 'page',
+    '#title' => 'FOOOO',
+  'content' => array(
+
+   'h1' => array(
+      '#markup' => t('Boosters & Events'),
+      '#prefix' => "<span class='head top_padding'>",
+      '#suffix' => '</span><br /><br />',
+   ),
+
+
+   'h2' => array(
+      '#markup' => $locale,
+      '#prefix' => "<span class='subhead'>",
+      '#suffix' => '</span><br /><br />',
+   ),
+  
+),
+);
+  return($render_array);
+
+
+}
+
+function find_cadets_events_arguments($foo){
+
+$mm = "<pre>" . print_r($foo, TRUE) . "</pre>";
+
+watchdog('CAP', $mm);
+
+$test1 = views_embed_view('find_cadets', 'block');
+$mm = "<pre>" . print_r($test1, TRUE) . "</pre>";
+watchdog('CAP', $mm);
+
+
+$string = "<span class='head top_padding'>$locale</span><br /><br />" . $list_upcoming[0] . " $locale<br>passed  param to this page. ";
+$render_array = array(
+    '#show_messages' => TRUE,
+//    '#type'  => 'page',
+    '#title' => 'FOOOO',
+  'content' => array(
+
+   'h1' => array(
+      '#markup' => t('Boosters & Events'),
+      '#prefix' => "<span class='head top_padding'>",
+      '#suffix' => '</span><br /><br />',
+   ),
+
+
+   'h2' => array(
+      '#markup' => $locale,
+      '#prefix' => "<span class='subhead'>",
+      '#suffix' => '</span><br /><br />',
+   ),
+
+   'upcoming_title' => array(
+      '#markup' => t('Upcoming Events'),
+      '#prefix' => '<h4 class="event-head">',
+      '#suffix' => '</h4><br />',
+   ),
+
+
+   'upcoming' => array(
+      '#type' => 'markup',
+     // The theme function to apply to the #items.
+      '#theme' => 'item_list',
+     // The list itself.
+      '#items' => $list_upcoming,
+   ),
+
+   'separator' => array(
+      '#markup' => '',
+      '#prefix' => '<div class="horiz-line">',
+      '#suffix' => '</div>',
+   ),
+
+   'previous_title' => array(
+      '#markup' => t('Previous Events'),
+      '#prefix' => '<h4 class="event-head">',
+      '#suffix' => '</h4><br />',
+      ),
+
+
+   'previous' => array(
+      '#type' => 'markup',
+      // The theme function to apply to the #items.
+      '#theme' => 'item_list',
+      // The list itself.
+      '#items' => $list_previous,
+      ),
+   ),
+);
+
+
+//  return t($string);
+  return($render_array);
+
+
+}
+
+
+/**
+ *  Form constructor for the example form.
+ */
+function find_cadets_form($form, &$form_state) {
+  // Provide a text field.
+  $form['name'] = array(
+    '#title' => t('Your full name'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+  );
+  
+  // Provide a submit button.
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Update search',
+  );
+  
+  return $form;
+}
+
+
+
+
