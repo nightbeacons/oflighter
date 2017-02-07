@@ -45,6 +45,29 @@ watchdog('CAP', $mm);
 }
 
 function find_cadets_now(){
+global $user;
+
+$cadets=array();
+$pilots_airport_tid = $_POST['selected'];
+$dateStr     = $_POST['date']['date'];
+$tmDateAry = strptime($dateStr, "%a, %d-%b-%Y");
+$dateAry = array(
+           'day'   => $tmDateAry['tm_mday'],
+           'month' => $tmDateAry['tm_mon'] + 1,
+           'year'  => $tmDateAry['tm_year'] + 1900
+           );
+$requested_date = $dateAry['year'] . "-" . sprintf("%02d", $dateAry['month']) . "-" . sprintf("%02d", $dateAry['day']);
+
+// Find the list of cadet submissions that match the pilot's requested date and the pilot's airport
+$result = db_query("SELECT DISTINCT w.sid FROM {webform_submitted_data} w WHERE
+                      (SELECT w.sid from {webform_submitted_data} w WHERE w.cid=1 AND w.data= :rdate) = 
+                      (SELECT w.sid from {webform_submitted_data} w WHERE w.cid=2 AND w.data= :airp)", 
+                      array(':rdate' => $requested_date, ':airp' => $pilots_airport_tid));
+
+   foreach ($result as $record){
+   $cadets[] = build_cadet_record($record->sid);
+   }
+
 
 $render_array = array(
     '#show_messages' => TRUE,
@@ -60,7 +83,7 @@ $render_array = array(
 
 
    'h2' => array(
-      '#markup' => $locale,
+      '#markup' => $cadets[0]->html,
       '#prefix' => "<span class='subhead'>",
       '#suffix' => '</span><br /><br />',
    ),
@@ -89,7 +112,7 @@ $mm = "<pre>" . print_r($test1, TRUE) . "</pre>";
 watchdog('CAP', $mm);
 
 
-$string = "<span class='head top_padding'>$locale</span><br /><br />" . $list_upcoming[0] . " $locale<br>passed  param to this page. ";
+$string = "<span class='head top_padding'>locale</span><br /><br />" .  " <br>passed  param to this page. ";
 $render_array = array(
     '#show_messages' => TRUE,
 //    '#type'  => 'page',
@@ -104,7 +127,7 @@ $render_array = array(
 
 
    'h2' => array(
-      '#markup' => $mm,
+      '#markup' => "HH",
       '#prefix' => "<span class='subhead'>",
       '#suffix' => '</span><br /><br />',
    ),
@@ -116,19 +139,6 @@ $render_array = array(
    ),
 
 
-   'upcoming' => array(
-      '#type' => 'markup',
-     // The theme function to apply to the #items.
-      '#theme' => 'item_list',
-     // The list itself.
-      '#items' => $list_upcoming,
-   ),
-
-   'separator' => array(
-      '#markup' => '',
-      '#prefix' => '<div class="horiz-line">',
-      '#suffix' => '</div>',
-   ),
 
    'previous_title' => array(
       '#markup' => t('Previous Events'),
@@ -137,13 +147,6 @@ $render_array = array(
       ),
 
 
-   'previous' => array(
-      '#type' => 'markup',
-      // The theme function to apply to the #items.
-      '#theme' => 'item_list',
-      // The list itself.
-      '#items' => $list_previous,
-      ),
    ),
 );
 
@@ -177,4 +180,42 @@ function find_cadets_form($form, &$form_state) {
 
 
 
+/**
+ * Build one record from the matching submission data
+ *  Input: Submission ID
+ *  Return: Matching record object
+ */
+function build_cadet_record($sid){
+
+$result = db_query("SELECT field_data_field_first_name.field_first_name_value AS fname, 
+       field_data_field_last_name.field_last_name_value AS lname, 
+       field_data_field_capid.field_capid_value AS capid,
+       field_data_field_weight.field_weight_value AS weight,
+       field_data_field_phone_number.field_phone_number_value AS phone,
+       mail from users LEFT JOIN webform_submissions         ON webform_submissions.uid = users.uid 
+                       LEFT JOIN field_data_field_first_name ON field_data_field_first_name.entity_id = users.uid
+                       LEFT JOIN field_data_field_last_name  ON field_data_field_last_name.entity_id = users.uid
+                       LEFT JOIN field_data_field_capid     ON field_data_field_capid.entity_id = users.uid
+                       LEFT JOIN field_data_field_weight     ON field_data_field_weight.entity_id = users.uid
+                       LEFT JOIN field_data_field_phone_number     ON field_data_field_phone_number.entity_id = users.uid
+       WHERE webform_submissions.sid= :sid", array(':sid' => $sid));
+
+   foreach ($result as $record){
+      $curr = db_query("SELECT data FROM webform_submitted_data where sid= :sid  AND cid=5 LIMIT 1", array(':sid' => $sid));
+         foreach ($curr as $tid){
+         $record->curriculum = taxonomy_term_load($tid->data)->name;
+         }
+   }
+$record->html = "<div class=\"cadet\">
+   <div class=\"cadet_last_name\">"  . $record->lname  . "</div>
+   <div class=\"cadet_first_name\">" . $record->fname  . "</div>
+   <div class=\"cadet_capid\">"      . $record->capid  . "</div>
+   <div class=\"cadet_weight\">"     . $record->weight . "</div>
+   <div class=\"cadet_phone\"><a href=\"tel:"    . $record->phone . "\">" . $record->phone . "</a></div>
+   <div class=\"cadet_email\"><a href=\"mailto:" . $record->mail  . "\">" . $record->mail  . "</a></div>
+   <div class=\"curriculum\">"       . $record->curriculum . "</div>
+</div>";
+
+return($record);
+}
 

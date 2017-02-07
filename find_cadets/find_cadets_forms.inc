@@ -73,7 +73,8 @@ $today = date("Y-m-d H:i:s", strtotime("+1 Saturday"));
        '#description' => t($preferred_airport_description),
    );
 
-  $form['#action'] = '/pilots/your-cadets/' . $user->uid;
+//  $form['#action'] = '/pilots/your-cadets/' . $user->uid;
+  $form['#action'] = '/pilots/lookforcadets';
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Find Cadets',
@@ -83,9 +84,4 @@ $today = date("Y-m-d H:i:s", strtotime("+1 Saturday"));
   return $form;
 }
 
-
-
-function form_find_cadets_submit($form, &$form_state) {
-drupal_set_message("XXXXXXXXXXXXXXXXXXX");
-}
 
