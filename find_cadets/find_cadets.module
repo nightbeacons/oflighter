@@ -6,27 +6,18 @@
  */
 
 function find_cadets_menu(){
-
-  $items['pilots/your-cadets/%'] = array(
-//    'title' => t('Boosters & Events'),
-    'page arguments' => array(1),
-    'access arguments' => array('access arguments page'),
-    'page callback' => 'find_cadets_events_arguments',
-    'access callback' => TRUE,
-//    'type' => MENU_CALLBACK,
-
-  );
+global $user;
 
 
-  $items['pilots/lookforcadets'] = array(
+  $items['pilots/show-cadets'] = array(
   'title'  => t('Find Cadets to Fly'),
-    'access arguments' => array('access arguments page'),
+//  'access arguments' => array('access arguments page'),
+    'access callback' => 'user_is_logged_in',  
   'page callback' => 'find_cadets_now',
-   'access_callback' => TRUE,
 );
 
 
-  $items['pilots/form1'] = array(
+  $items['pilots/find-cadets'] = array(
     'title' => 'Look For Cadets To Fly',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('form_find_cadets'),
@@ -37,10 +28,6 @@ function find_cadets_menu(){
   );
 
 
-
-$current_url = $_SERVER["SCRIPT_FILENAME"] . " xx<br> yy" . $_SERVER["REQUEST_URI"] . " ll<br>kk";
-$mm = "<pre>" .  print_r($current_url , TRUE) . "</pre>"; 
-watchdog('CAP', $mm);
   return $items;
 }
 
@@ -48,8 +35,8 @@ function find_cadets_now(){
 global $user;
 
 $cadets=array();
-$pilots_airport_tid = $_POST['selected'];
-$dateStr     = $_POST['date']['date'];
+$pilots_airport_tid = (isset($_POST['selected']) ?  $_POST['selected'] : 0);
+$dateStr     = (isset($_POST['date']['date']) ? $_POST['date']['date']  : date("%a, %d-%b-%Y"));
 $tmDateAry = strptime($dateStr, "%a, %d-%b-%Y");
 $dateAry = array(
            'day'   => $tmDateAry['tm_mday'],
@@ -83,7 +70,7 @@ $render_array = array(
 
 
    'h2' => array(
-      '#markup' => $cadets[0]->html,
+      '#markup' => (isset($cadets[0]->html) ? $cadets[0]->html : ""),
       '#prefix' => "<span class='subhead'>",
       '#suffix' => '</span><br /><br />',
    ),

@@ -7,15 +7,19 @@
 
 function form_find_cadets($form, &$form_state) {
 global $user;
-
 $user_data = user_load($user->uid);
+ $mm = "<pre>" . print_r($user_data, TRUE) . "</pre>";
+watchdog('CAP', $mm);
 
-$form_description="<h3>Pilot: " . $user_data->field_last_name['und'][0]['safe_value'] . ", " . $user_data->field_first_name['und'][0]['safe_value'] . "<br>
-CAPID: " . $user_data->field_capid['und'][0]['safe_value'] . "</h3>";
+$lastName  = (isset($user_data->field_last_name['und'][0]['safe_value'])  ? $user_data->field_last_name['und'][0]['safe_value']  : "<i>No Last Name Set</i>");
+$firstName = (isset($user_data->field_first_name['und'][0]['safe_value']) ? $user_data->field_first_name['und'][0]['safe_value'] : "<i>No First Name Set</i>");
+$capid     = (isset($user_data->field_capid['und'][0]['safe_value'])      ? $user_data->field_capid['und'][0]['safe_value']      : "<i>No CAPID Set</i>");
+$form_description="<h3>Pilot: " . $lastName . ", " . $firstName . "<br>
+CAPID: $capid</h3>";
 
   $form['description'] = array(
     '#type' => 'item',
-    '#title' => t('Help me finds cadets to fly.'),
+    '#title' => t('Help me find cadets to fly.'),
     '#description' => t($form_description),
   );
 /**
@@ -57,14 +61,18 @@ $today = date("Y-m-d H:i:s", strtotime("+1 Saturday"));
       );
 
   $myAirports =array();
-     foreach($user_data->field_airports['und'] as $airportId){
-       $tid = $airportId['tid'];
-       $term = taxonomy_term_load($tid);
-       $term_name = $term->name;
-       $myAirports[$tid] = $term_name;
+     if (isset($user_data->field_airports['und'])){
+       foreach($user_data->field_airports['und'] as $airportId){
+         $tid = $airportId['tid'];
+         $term = taxonomy_term_load($tid);
+         $term_name = $term->name;
+         $myAirports[$tid] = $term_name;
+       }
+       $preferred_airport_description = "If you don't see your preferred airport, <a href=\"/user/" . $user->uid . "/edit\" target=\"_blank\" >click here</a> to add it to your profile.";
+     } else {
+       $preferred_airport_description = "No airports found in your profile. <a href=\"/user/" . $user->uid . "/edit\" target=\"_blank\" >Click here</a> to add some.";
      }
 
-  $preferred_airport_description = "If you don't see your preferred airport, <a href=\"/user/" . $user->uid . "/edit\" target=\"_blank\" >click here</a> to add it to your profile.";
   $form['selected'] = array(
        '#type' => 'select',
        '#title' => t('Airport'),
@@ -74,7 +82,7 @@ $today = date("Y-m-d H:i:s", strtotime("+1 Saturday"));
    );
 
 //  $form['#action'] = '/pilots/your-cadets/' . $user->uid;
-  $form['#action'] = '/pilots/lookforcadets';
+  $form['#action'] = '/pilots/show-cadets';
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Find Cadets',
