@@ -55,15 +55,21 @@ $result = db_query("SELECT DISTINCT w.sid FROM {webform_submitted_data} w WHERE
    $cadets[] = build_cadet_record($record->sid);
    }
 
+$numCadets = count($cadets);
+
+  if ($numCadets > 0){
+  $h1_markup = "Cadets who are available to fly on " . $requested_date;
+  } else {
+  $h1_markup = "No cadets are available to fly on " . $requested_date;
+  }
 
 $render_array = array(
     '#show_messages' => TRUE,
 //    '#type'  => 'page',
     '#title' => 'FOOOO',
   'content' => array(
-
    'h1' => array(
-      '#markup' => t('Boosters & Events'),
+      '#markup' => $h1_markup,
       '#prefix' => "<span class='head top_padding'>",
       '#suffix' => '</span><br /><br />',
    ),
