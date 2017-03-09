@@ -34,8 +34,8 @@ global $user;
 function find_cadets_now(){
 global $user;
 
-$days = getDays();
-$months = getMonths();
+$days = find_cadets_get_vals("days");
+$months = find_cadets_get_vals("months");
 
 $cadets=array();
 $pilots_airport_tid = (isset($_POST['selected']) ?  $_POST['selected'] : 0);
