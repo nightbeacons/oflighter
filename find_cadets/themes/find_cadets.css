@@ -1,0 +1,26 @@
+
+div.cadet {
+  display: table-row;
+}
+
+div.cadet_wrapper{
+  display: table;
+  width: 100%;
+}
+
+div.cadet_row {
+  display: table-cell;
+  border-style:solid;
+  border-width:1px;
+  border-color:#333333;
+  padding: 1em;
+}
+
+div.cadet_row_head {
+  font-weight:bold;
+  text-align:center;
+}
+
+div.cadet_name div.curriculum {
+  white-space: nowrap;
+}
