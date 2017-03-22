@@ -215,8 +215,8 @@ $result = db_query("SELECT field_data_field_first_name.field_first_name_value AS
          }
    }
 $record->html = "<div class=\"cadet\">
-   <div class=\"cadet_row\">
-   <input type=\"checkbox\" name=\"record_id\" value=\"" . $requested_date . ":" . $record->capid . "\" class=\"record_checkbox cadet_row\">
+   <div class=\"record_checkbox cadet_row\">
+   <input type=\"checkbox\" name=\"record_id\" value=\"" . $requested_date . ":" . $record->capid . "\" title=\"Send email to this cadet\">
    </div>
    <div class=\"cadet_name cadet_row\">"       . $record->lname  . ", 
                                              " . $record->fname  . "</div>

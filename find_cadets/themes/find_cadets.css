@@ -24,3 +24,7 @@ div.cadet_row_head {
 div.cadet_name div.curriculum {
   white-space: nowrap;
 }
+div.record_checkbox{
+  text-align:center;
+}
+
