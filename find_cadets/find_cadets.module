@@ -56,15 +56,26 @@ $result = db_query("SELECT DISTINCT w.sid FROM {webform_submitted_data} w WHERE
                       array(':rdate' => $requested_date, ':airp' => $pilots_airport_tid));
 
    foreach ($result as $record){
-   $cadets[] = build_cadet_record($record->sid);
+   $cadets[] = build_cadet_record($record->sid, $requested_date);
    }
 
 $numCadets = count($cadets);
 
   if ($numCadets > 0){
   $h1_markup = "Cadets who are available to fly on " . $requested_date_pretty;
+  $h2_prefix = "<span class='subhead'><form><div class=\"cadet_wrapper\">
+                <div class=\"cadet\"><div class=\"cadet_row cadet_row_head\">Send Email</div>
+                <div class=\"cadet_row cadet_row_head\">Name</div>
+                <div class=\"cadet_row cadet_row_head\">CAPID</div>
+                <div class=\"cadet_row cadet_row_head\">Weight</div>
+                <div class=\"cadet_row cadet_row_head\">Phone</div>
+                <div class=\"cadet_row cadet_row_head\">Email</div>
+                <div class=\"cadet_row cadet_row_head\">Curriculum</div></div>";
+  $h2_suffix = "</div></form></span><br /><br />";
   } else {
   $h1_markup = "No cadets are available to fly on " . $requested_date_pretty;
+  $h2_prefix = "<span class='subhead'>";
+  $h2_suffix = "</span><br /><br />";
   }
 
 $render_array = array(
@@ -81,8 +92,8 @@ $render_array = array(
 
    'h2' => array(
       '#markup' => (isset($cadets[0]->html) ? $cadets[0]->html : ""),
-      '#prefix' => "<span class='subhead'>",
-      '#suffix' => '</span><br /><br />',
+      '#prefix' => $h2_prefix,
+      '#suffix' => $h2_suffix,
    ),
   
 ),
@@ -179,10 +190,10 @@ function find_cadets_form($form, &$form_state) {
 
 /**
  * Build one record from the matching submission data
- *  Input: Submission ID
+ *  Input: Submission ID, request date (format = YYYY-mm-dd)
  *  Return: Matching record object
  */
-function build_cadet_record($sid){
+function build_cadet_record($sid, $requested_date){
 
 $result = db_query("SELECT field_data_field_first_name.field_first_name_value AS fname, 
        field_data_field_last_name.field_last_name_value AS lname, 
@@ -204,13 +215,16 @@ $result = db_query("SELECT field_data_field_first_name.field_first_name_value AS
          }
    }
 $record->html = "<div class=\"cadet\">
-   <div class=\"cadet_last_name\">"  . $record->lname  . "</div>
-   <div class=\"cadet_first_name\">" . $record->fname  . "</div>
-   <div class=\"cadet_capid\">"      . $record->capid  . "</div>
-   <div class=\"cadet_weight\">"     . $record->weight . "</div>
-   <div class=\"cadet_phone\"><a href=\"tel:"    . $record->phone . "\">" . $record->phone . "</a></div>
-   <div class=\"cadet_email\"><a href=\"mailto:" . $record->mail  . "\">" . $record->mail  . "</a></div>
-   <div class=\"curriculum\">"       . $record->curriculum . "</div>
+   <div class=\"cadet_row\">
+   <input type=\"checkbox\" name=\"record_id\" value=\"" . $requested_date . ":" . $record->capid . "\" class=\"record_checkbox cadet_row\">
+   </div>
+   <div class=\"cadet_name cadet_row\">"       . $record->lname  . ", 
+                                             " . $record->fname  . "</div>
+   <div class=\"cadet_capid cadet_row\">"      . $record->capid  . "</div>
+   <div class=\"cadet_weight cadet_row\">"     . $record->weight . "</div>
+   <div class=\"cadet_phone cadet_row\"><a href=\"tel:"    . $record->phone . "\">" . $record->phone . "</a></div>
+   <div class=\"cadet_email cadet_row\"><a href=\"mailto:" . $record->mail  . "\">" . $record->mail  . "</a></div>
+   <div class=\"curriculum cadet_row\">"       . $record->curriculum . "</div>
 </div>";
 
 return($record);

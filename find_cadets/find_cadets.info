@@ -3,3 +3,6 @@ description = Code to locate cadets for O-Flights
 package = CAP
 core = 7.x
 
+stylesheets[all][] = themes/find_cadets.css
+
+
