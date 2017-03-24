@@ -50,18 +50,33 @@ $dateAry = array(
 $requested_date = $dateAry['year'] . "-" . sprintf("%02d", $dateAry['month']) . "-" . sprintf("%02d", $dateAry['day']);
 $requested_date_pretty = $days[$dateAry['dow']] . ", " . $dateAry['day'] . " " . $months[$dateAry['month']] . " " . $dateAry['year'];;
 // Find the list of cadet submissions that match the pilot's requested date and the pilot's airport
-$result = db_query("SELECT DISTINCT w.sid FROM {webform_submitted_data} w WHERE
-                      (SELECT w.sid from {webform_submitted_data} w WHERE w.cid=1 AND w.data= :rdate) IN 
-                      (SELECT w.sid from {webform_submitted_data} w WHERE w.cid=2 AND w.data= :airp)", 
-                      array(':rdate' => $requested_date, ':airp' => $pilots_airport_tid));
+//    SID = webform submission ID
+//    CID = webform component ID
+//         CID #1 => the requested date
+//         CID #2 => Airport ID
+//$result = db_query("SELECT DISTINCT w.sid FROM {webform_submitted_data} w WHERE
+//                      (SELECT w.sid from {webform_submitted_data} w WHERE w.cid=1 AND w.data= :rdate) IN 
+//                      (SELECT w.sid from {webform_submitted_data} w WHERE w.cid=2 AND w.data= :airp)", 
+//                     array(':rdate' => $requested_date, ':airp' => $pilots_airport_tid));
 
+$result = db_query("SELECT a.sid from {webform_submitted_data} a 
+                    INNER JOIN {webform_submitted_data} b
+                    ON a.sid=b.sid
+                    WHERE (a.cid=1 AND a.data = :rdate)
+                    AND   (b.cid=2 AND b.data = :airp)",
+                    array(':rdate' => $requested_date, ':airp' => $pilots_airport_tid));
+
+$cadetHtml = "";
+$cadetIdx=0;
    foreach ($result as $record){
-   $cadets[] = build_cadet_record($record->sid, $requested_date);
+   $cadets[$cadetIdx] = build_cadet_record($record->sid, $requested_date);
+   $cadetHtml .= $cadets[$cadetIdx]->html;
+   $cadetIdx++;
    }
 
-$numCadets = count($cadets);
+//$numCadets = count($cadets);
 
-  if ($numCadets > 0){
+  if ($cadetIdx > 0){
   $h1_markup = "Cadets who are available to fly on " . $requested_date_pretty;
   $h2_prefix = "<span class='subhead'><form><div class=\"cadet_wrapper\">
                 <div class=\"cadet\"><div class=\"cadet_row cadet_row_head\">Send Email</div>
@@ -91,7 +106,7 @@ $render_array = array(
 
 
    'h2' => array(
-      '#markup' => (isset($cadets[0]->html) ? $cadets[0]->html : ""),
+      '#markup' => $cadetHtml,
       '#prefix' => $h2_prefix,
       '#suffix' => $h2_suffix,
    ),
