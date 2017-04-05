@@ -82,7 +82,7 @@ $cadetIdx=0;
                 <div class=\"cadet_row cadet_row_head\">Phone</div>
                 <div class=\"cadet_row cadet_row_head\">Email</div>
                 <div class=\"cadet_row cadet_row_head\">Curriculum</div></div>";
-  $h2_suffix = "</div></form></span><br /><br />";
+  $h2_suffix = "</div><input type=\"submit\" value=\"Send Email\"></form></span><br /><br />";
   } else {
   $h1_markup = "No cadets are available to fly on " . $requested_date_pretty . " from " . $airportName;
   $h2_prefix = "<span class='subhead'>";
