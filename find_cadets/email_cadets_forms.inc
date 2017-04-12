@@ -14,6 +14,29 @@ $fh = fopen("/tmp/form_state.log", "w");
 fwrite($fh, $mm);
 fclose($fh);
 
+// Generate list of recipients
+$airport_tid = $form_state['input']['airport_tid'];
+$recordAry   = $form_state['input']['record_id'];
+$recipientList = "";
+   foreach($recordAry as $recipient){
+   $recipAry = explode(":", $recipient);
+   $flightDate = $recipAry[0];
+   $capid = $recipAry[1];
+   $result = db_query("SELECT field_data_field_first_name.field_first_name_value FNAME, 
+                       field_data_field_last_name.field_last_name_value   LNAME,
+                       users.mail EMAIL, field_data_field_capid.entity_id 
+                       FROM field_data_field_capid 
+                       LEFT JOIN users on field_data_field_capid.entity_id=users.uid
+                       LEFT JOIN field_data_field_first_name ON field_data_field_first_name.entity_id=users.uid
+                       LEFT JOIN field_data_field_last_name ON field_data_field_last_name.entity_id=users.uid
+                       WHERE field_data_field_capid.field_capid_value= :capid", array(':capid' => $capid));
+      foreach ($result as $record){
+      $recipientList .= $record->FNAME . " " . $record->LNAME . "<" . $record->EMAIL . ">,";  
+      }
+   }
+$recipientList = rtrim($recipientList, ",");
+drupal_set_message($recipientList);
+watchdog('CPJ', $recipientList);
 $user_data = user_load($user->uid);
  $mm = "<pre>" . print_r($user_data, TRUE) . "</pre>";
 watchdog('CAP', $mm);
