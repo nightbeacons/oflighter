@@ -27,6 +27,16 @@ global $user;
     'file' => 'find_cadets_forms.inc',
   );
 
+  $items['pilots/email-cadets'] = array(
+    'title' => 'Send Email to Selected Cadets',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('form_email_cadets'),
+    'access callback' => 'user_is_logged_in',
+    'description' => 'Send email to cadets',
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'email_cadets_forms.inc',
+  );
+
 
   return $items;
 }
@@ -74,7 +84,7 @@ $cadetIdx=0;
 
   if ($cadetIdx > 0){
   $h1_markup = "Cadets who are available to fly on " . $requested_date_pretty . " from " . $airportName;
-  $h2_prefix = "<span class='subhead'><form><div class=\"cadet_wrapper\">
+  $h2_prefix = "<span class='subhead'><form method=\"post\" action=\"/pilots/email-cadets\"><div class=\"cadet_wrapper\">
                 <div class=\"cadet\"><div class=\"cadet_row cadet_row_head\">Send Email</div>
                 <div class=\"cadet_row cadet_row_head\">Name</div>
                 <div class=\"cadet_row cadet_row_head\">CAPID</div>
@@ -82,7 +92,7 @@ $cadetIdx=0;
                 <div class=\"cadet_row cadet_row_head\">Phone</div>
                 <div class=\"cadet_row cadet_row_head\">Email</div>
                 <div class=\"cadet_row cadet_row_head\">Curriculum</div></div>";
-  $h2_suffix = "</div><input type=\"submit\" value=\"Send Email\"></form></span><br /><br />";
+  $h2_suffix = "</div><input type=\"hidden\" name=\"airport_tid\" value=\"" . $pilots_airport_tid . "\"><input type=\"submit\" value=\"Send Email\"></form></span><br /><br />";
   } else {
   $h1_markup = "No cadets are available to fly on " . $requested_date_pretty . " from " . $airportName;
   $h2_prefix = "<span class='subhead'>";
@@ -227,7 +237,7 @@ $result = db_query("SELECT field_data_field_first_name.field_first_name_value AS
    }
 $record->html = "<div class=\"cadet\">
    <div class=\"record_checkbox cadet_row\">
-   <input type=\"checkbox\" name=\"record_id\" value=\"" . $requested_date . ":" . $record->capid . "\" title=\"Send email to this cadet\">
+   <input type=\"checkbox\" name=\"record_id[]\" value=\"" . $requested_date . ":" . $record->capid . "\" title=\"Send email to this cadet\">
    </div>
    <div class=\"cadet_name cadet_row\">"       . $record->lname  . ", 
                                              " . $record->fname  . "</div>
